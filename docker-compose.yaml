@@ -1,0 +1,140 @@
+version: '3'
+
+volumes:
+  mysql_data:
+    driver: local
+  mongodb_data:
+    driver: local
+
+networks:
+  winra-net:
+    driver: bridge
+
+services:
+  nginx: 
+    image: nginx:latest
+    container_name: winra_nginx
+    volumes:
+      - ./data/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./data/ssl/:/etc/ssl/
+      - ./data/nginx/conf/:/etc/conf/
+    ports:
+      - 443:443
+    networks:
+      - winra-net
+
+  mysql:
+    hostname: mysql
+    container_name: mysql
+    image: mysql:5.7
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./data/mysql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      #MYSQL_USER: winra
+      #MYSQL_PASSWORD: password
+    networks:
+      - winra-net
+      
+  mongodb:
+    image : mongo
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+#      - PUID=1000
+#      - PGID=1000
+      - MONGO_INITDB_ROOT_USERNAME=appuser
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=acme
+    volumes:
+      - mongodb_data:/data/db
+      - ./data/mongodb/mongod.conf:/etc/mongod.conf
+    entrypoint: ["mongod", "--auth", "--config", "/etc/mongod.conf"]
+    ports:
+      - 27017:27017
+    networks:
+      - winra-net
+      
+  keycloak:
+    #image: jboss/keycloak:13.0.0
+    build: data/keycloak/
+    hostname: keycloak
+    container_name: keycloak
+    environment:
+      DB_VENDOR: mysql
+      DB_ADDR: mysql
+      DB_DATABASE: keycloak
+      DB_PORT: 3306
+      DB_USER: winra
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+      PROXY_ADDRESS_FORWARDING: "true"
+      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the MySQL JDBC driver documentation in order to use it.
+      #JDBC_PARAMS: "connectTimeout=30000"
+      KEYCLOAK_IMPORT: "/tmp/import-realm.json -Dkeycloak.profile.feature.upload_scripts=enabled"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./data/keycloak/winllc-dev-realm.json:/tmp/import-realm.json
+    depends_on:
+      - mysql
+      - nginx
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - winra-net
+      
+  win-ra-api:
+    image: registry.gitlab.winllc-dev.com/root/pki-registration-authority
+    container_name: winra_api
+    ports:
+      - 8282:8282
+    depends_on:
+      - mysql
+      - keycloak
+    volumes:
+      - ./data/ssl/:/ssl/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8282"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - winra-net
+    
+  win-ra-acme:
+    image: registry.gitlab.winllc-dev.com/root/acme-server
+    container_name: winra_acme
+    ports:
+      - 8181:8181
+    depends_on:
+      - mongodb
+    networks:
+      - winra-net
+      
+  win-ra-est:
+    image: registry.gitlab.winllc-dev.com/root/winllc-jester
+    container_name: winra_est
+    ports:
+      - 8383:8383
+    depends_on:
+      - win-ra-api
+#        - condition: service_healthy
+    networks:
+      - winra-net
+      
+  win-ra-ui:
+    image: registry.gitlab.winllc-dev.com/root/pki-ra-ui-3
+    container_name: winra_ui
+    ports:
+      - 8484:4000
+    depends_on:
+      - win-ra-api
+    networks:
+      - winra-net
