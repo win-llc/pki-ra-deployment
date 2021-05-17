@@ -50,8 +50,8 @@ services:
       - MONGO_INITDB_DATABASE=acme
     volumes:
       - mongodb_data:/data/db
-      - ./data/mongodb/mongod.conf:/etc/mongod.conf
-    entrypoint: ["mongod", "--auth", "--config", "/etc/mongod.conf"]
+      - ./data/mongodb/001_users.js:/docker-entrypoint-initdb.d/001_users.js:ro
+#    entrypoint: ["mongod", "--auth", "--config", "/etc/mongod.conf"]
     ports:
       - 27017:27017
     networks:
@@ -92,25 +92,27 @@ services:
       
   win-ra-api:
     image: registry.gitlab.winllc-dev.com/root/pki-registration-authority
-    container_name: winra_api
+    container_name: win-ra-api
     ports:
       - 8282:8282
     depends_on:
-      - mysql
-      - keycloak
+      mysql:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
     volumes:
       - ./data/ssl/:/ssl/
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8282"]
+      test: ["CMD", "wget", "http://localhost:8282"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 8
     networks:
       - winra-net
     
   win-ra-acme:
     image: registry.gitlab.winllc-dev.com/root/acme-server
-    container_name: winra_acme
+    container_name: win-ra-acme
     ports:
       - 8181:8181
     depends_on:
@@ -120,18 +122,18 @@ services:
       
   win-ra-est:
     image: registry.gitlab.winllc-dev.com/root/winllc-jester
-    container_name: winra_est
+    container_name: win-ra-est
     ports:
       - 8383:8383
     depends_on:
-      - win-ra-api
-#        - condition: service_healthy
+      win-ra-api:
+        condition: service_healthy
     networks:
       - winra-net
       
   win-ra-ui:
     image: registry.gitlab.winllc-dev.com/root/pki-ra-ui-3
-    container_name: winra_ui
+    container_name: win-ra-ui
     ports:
       - 8484:4000
     depends_on:
