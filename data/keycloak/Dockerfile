@@ -5,7 +5,7 @@ MAINTAINER WIN LLC (dave.t.winters@gmail.com)
 USER root
 
 ADD standalone.xml /opt/jboss/keycloak/standalone/configuration/standalone.xml
-ADD truststore.jks /opt/jboss/keycloak/standalone/configuration/truststore.jks
+#ADD truststore.jks /opt/jboss/keycloak/standalone/configuration/truststore.jks
 
 # Set permissions on the Wildfly standalone directory for OpenShift deployments
 RUN chown -R jboss:0 $JBOSS_HOME/standalone && \
