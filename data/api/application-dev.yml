@@ -1,0 +1,107 @@
+debug: false
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: false
+    path: /v2/api-docs
+
+plugins:
+  enabled: true
+  load-from-directory:
+
+app-keystore:
+  location: /ssl/dogtag-ca-admin-with-chain.pfx
+  password: P@ssW0rd
+  type: PKCS12
+win-ra:
+  acme-server-url: http://win-ra-acme:8181
+  acme-server-name: winllc
+management:
+  health:
+    ldap:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+spring:
+  datasource:
+    url: jdbc:mysql://mysql/winpkira-dev
+    driver-class-name: com.mysql.jdbc.Driver
+    username: winra
+    password: password
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  jackson:
+    date-format: com.fasterxml.jackson.databind.util.StdDateFormat
+    default-property-inclusion: non_null
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://winra.winllc-dev.com/auth/realms/dev
+rest:
+  security:
+    cors:
+      allowed-origins: '*'
+      allowed-headers: '*'
+      allowed-methods: HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS
+      max-age: 3600
+logging:
+  level:
+    org:
+      springframework:
+        security: debug
+server:
+  #error:
+  #  include-stacktrace: never
+  port: 8282
+  #ssl:
+  #  trust-store: /ssl/trust.jks
+  #  enabled: false
+  #  trust-store-type: JKS
+  #servlet:
+  #  context-path: /
+  #address: 192.168.1.13
+  base-url: https://winra.winllc-dev.com/ui
+keycloak-admin-interface:
+  server-base-url: 'https://winra.winllc-dev.com/auth'
+  realm: dev
+  client-id: win-pki-ra-client
+  client-secret: 9bbacdcc-6bbc-4c23-8a7a-77864a23a586
+  client-username: win-ra-admin
+  client-password: P@ssW0rd
+  custom-client-scope: pki-app
+authentication:
+  jwt-required-audience: pki-ra-client-public
+external-services:
+  oidc:
+    enabled-connection-names: oidc-keycloak
+  identity:
+    enabled-connection-names: identity-keycloak
+
+policy-server:
+  ldap-url: ldap://fid.winllc-dev.com:2389
+  ldap-username: cn=Directory Manager
+  ldap-password: secret1234
+  ldap-base-dn: dc=winllc-dev,dc=com
+
+web-ui:
+  server-base: http://localhost:3000
+  uri-templates:
+    account-created: /account/edit/{0}
+permissions:
+  front-end-client-oidc-client: pki-ra-client-public
+  protected-entities:
+    - account
+    - domain
+    - serverentry
+    - authkey
+  available:
+    - super_admin
+    - admin

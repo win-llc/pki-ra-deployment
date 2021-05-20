@@ -112,6 +112,7 @@ services:
         condition: service_healthy
     volumes:
       - ./data/ssl/:/ssl/
+      - ./data/api/application-dev.yml:/application-dev.yml
     healthcheck:
       test: ["CMD", "wget", "http://localhost:8282"]
       interval: 30s
@@ -125,6 +126,9 @@ services:
     container_name: win-ra-acme
     ports:
       - 8181:8181
+    volumes:
+      - ./data/ssl/:/ssl/
+      - ./data/acme/application-dev.properties:/application-dev.properties
     depends_on:
       - mongodb
 #    networks:
@@ -146,6 +150,8 @@ services:
     container_name: win-ra-ui
     ports:
       - 8484:4000
+    volumes:
+      - ./data/ui/.env.development:/.env.development
     depends_on:
       - win-ra-api
 #    networks:
