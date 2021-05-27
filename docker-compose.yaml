@@ -86,6 +86,7 @@ services:
     volumes:
       - ./data/keycloak/winllc-dev-realm.json:/tmp/import-realm.json
       - ./data/ssl/trust.jks:/opt/jboss/keycloak/standalone/configuration/truststore.jks
+      - ./data/keycloak/scipts/:/scripts
     depends_on:
       mysql:
         condition: service_healthy
@@ -101,6 +102,7 @@ services:
       
   win-ra-api:
     image: registry.gitlab.winllc-dev.com/root/pki-registration-authority
+    pull_policy: always
     container_name: win-ra-api
     hostname: winraapi
     ports:
@@ -113,6 +115,7 @@ services:
     volumes:
       - ./data/ssl/:/ssl/
       - ./data/api/application-dev.yml:/application-dev.yml
+      - ./data/api/ca-plugins:/ca-plugins
     healthcheck:
       test: ["CMD", "wget", "http://localhost:8282"]
       interval: 30s
@@ -123,6 +126,7 @@ services:
     
   win-ra-acme:
     image: registry.gitlab.winllc-dev.com/root/acme-server
+    pull_policy: always
     container_name: win-ra-acme
     ports:
       - 8181:8181
@@ -136,9 +140,13 @@ services:
       
   win-ra-est:
     image: registry.gitlab.winllc-dev.com/root/winllc-jester
+    pull_policy: always
     container_name: win-ra-est
     ports:
       - 8383:8888
+    volumes:
+      - ./data/ssl/:/ssl/
+      - ./data/est/application-dev.properties:/application-dev.properties
     depends_on:
       win-ra-api:
         condition: service_healthy
@@ -147,11 +155,12 @@ services:
       
   win-ra-ui:
     image: registry.gitlab.winllc-dev.com/root/pki-ra-ui-3
+    pull_policy: always
     container_name: win-ra-ui
     ports:
       - 8484:4000
     volumes:
-      - ./data/ui/.env.development:/.env.development
+      - ./data/ui/env.development:/app/.env.development
     depends_on:
       - win-ra-api
 #    networks:
