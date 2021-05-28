@@ -165,3 +165,19 @@ services:
       - win-ra-api
 #    networks:
 #      - winra-net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+    volumes:
+      - ./data/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    #  - --storage.tsdb.path=/prometheus
+    #  - --web.console.libraries=/usr/share/prometheus/console_libraries
+    #  - --web.console.templates=/usr/share/prometheus/consoles
+      - --web.external-url=https://winra.winllc-dev.com/status
+    #  - --web.route-prefix=/
