@@ -157,10 +157,20 @@ services:
     image: registry.gitlab.winllc-dev.com/root/pki-ra-ui-3
     pull_policy: always
     container_name: win-ra-ui
+    environment:
+      PUBLIC_URL: https://winra.winllc-dev.com/ui
+      REACT_APP_KEYCLOAK_realm: dev
+      REACT_APP_KEYCLOAK_auth_server_url: https://winra.winllc-dev.com/auth/
+      REACT_APP_KEYCLOAK_RESOURCE: pki-ra-client-public
+      REACT_APP_URL_BASENAME: /ui
+      REACT_APP_SYSTEM_STATUS_URL: https://winra.winllc-dev.com/status/targets
+      REACT_APP_IDENTITY_MANAGE_URL: https://winra.winllc-dev.com/auth/
     ports:
-      - 8484:4000
+    #  - 8484:4000
+      - 8484:80
     volumes:
       - ./data/ui/env.development:/app/.env.development
+      - ./data/ui/env.development:/usr/share/nginx/html/.env
     depends_on:
       - win-ra-api
 #    networks:

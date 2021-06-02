@@ -31,3 +31,12 @@ scrape_configs:
     scrape_interval: 5s
     static_configs:
     - targets: ['192.168.1.170:8181']
+
+  - job_name: 'win-ra-est'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    static_configs:
+    - targets: ['192.168.1.170:8383']
