@@ -13,6 +13,8 @@ if [ -x "$(command -v docker)" ]; then
 
     docker exec win-ra-keycloak /scripts/init-config.sh
 
+    docker exec -it nginx nginx -s reload
+
 else
     echo "Install docker"
     # command
