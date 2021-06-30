@@ -5,6 +5,8 @@ volumes:
     driver: local
   mongodb_data:
     driver: local
+  data01:
+    driver: local
 
 networks:
   winra-external:
@@ -16,6 +18,7 @@ services:
     #build: data/nginx/
     container_name: nginx
     hostname: nginx
+    restart: unless-stopped
     volumes:
       - ./data/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./data/ssl/:/etc/ssl/
@@ -70,6 +73,7 @@ services:
     build: data/keycloak/
     hostname: win-ra-keycloak
     container_name: win-ra-keycloak
+    restart: unless-stopped
     environment:
       DB_VENDOR: mysql
       DB_ADDR: mysql
@@ -109,6 +113,7 @@ services:
     pull_policy: always
     container_name: win-ra-api
     hostname: winraapi
+    restart: unless-stopped
     ports:
       - 8282:8282
     depends_on:
@@ -121,10 +126,12 @@ services:
       - ./data/api/application-dev.yml:/application-dev.yml
       - ./data/api/ca-plugins:/ca-plugins
     healthcheck:
-      test: ["CMD", "wget", "http://localhost:8282"]
+      test: ["CMD", "curl", "-f", "http://localhost:8282"]
+      #test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8282/"]
+      #test: curl -m 5 --silent --fail --request GET http://localhost:8080/actuator/health | jq --exit-status -n 'inputs | if has("status") then .status=="UP" else false end' > /dev/null || exit 1
       interval: 30s
       timeout: 10s
-      retries: 8
+      retries: 15
     networks:
       - winra-external
     
@@ -132,6 +139,7 @@ services:
     image: registry.gitlab.winllc-dev.com/root/acme-server
     pull_policy: always
     container_name: win-ra-acme
+    restart: unless-stopped
     ports:
       - 8181:8181
     volumes:
@@ -146,6 +154,7 @@ services:
     image: registry.gitlab.winllc-dev.com/root/winllc-jester
     pull_policy: always
     container_name: win-ra-est
+    restart: unless-stopped
     ports:
       - 8383:8888
     volumes:
@@ -162,6 +171,7 @@ services:
     pull_policy: always
     container_name: win-ra-ui
     hostname: win-ra-ui
+    restart: unless-stopped
     environment:
       PUBLIC_URL: https://winra.winllc-dev.com/ui
       REACT_APP_KEYCLOAK_realm: dev
@@ -198,3 +208,18 @@ services:
     #  - --web.console.templates=/usr/share/prometheus/consoles
       - --web.external-url=https://winra.winllc-dev.com/status
     #  - --web.route-prefix=/
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    container_name: elasticsearch
+    hostname: elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    networks:
+      - winra-external

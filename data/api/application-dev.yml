@@ -85,6 +85,9 @@ external-services:
   identity:
     enabled-connection-names: identity-keycloak
 
+elasticsearch:
+  url: elasticsearch:9200
+
 policy-server:
   ldap-url: ldap://fid.winllc-dev.com:2389
   ldap-username: cn=Directory Manager

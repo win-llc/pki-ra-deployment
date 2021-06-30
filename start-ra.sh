@@ -9,6 +9,8 @@ if [ -x "$(command -v docker)" ]; then
       docker import $f
     done
 
+    docker-compose -f docker-compose.yaml pull
+
     docker-compose -f docker-compose.yaml up -d
 
     docker exec win-ra-keycloak /scripts/init-config.sh
