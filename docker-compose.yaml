@@ -3,6 +3,10 @@ version: '3'
 volumes:
   mysql_data:
     driver: local
+#  mysql_8_data:
+#    driver: local
+#  mysql_5_data:
+#    driver: local
   mongodb_data:
     driver: local
   data01:

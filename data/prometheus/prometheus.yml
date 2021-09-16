@@ -22,19 +22,19 @@ scrape_configs:
 
   - job_name: 'win-ra-api'
     metrics_path: '/actuator/prometheus'
-    scrape_interval: 5s
+    scrape_interval: 15s
     static_configs:
     - targets: ['192.168.1.170:8282']
 
   - job_name: 'win-ra-acme'
     metrics_path: '/actuator/prometheus'
-    scrape_interval: 5s
+    scrape_interval: 15s
     static_configs:
     - targets: ['192.168.1.170:8181']
 
   - job_name: 'win-ra-est'
     metrics_path: '/actuator/prometheus'
-    scrape_interval: 5s
+    scrape_interval: 15s
     scheme: https
     tls_config:
       insecure_skip_verify: true
