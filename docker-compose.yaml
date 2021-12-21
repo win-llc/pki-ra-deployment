@@ -3,10 +3,6 @@ version: '3'
 volumes:
   mysql_data:
     driver: local
-#  mysql_8_data:
-#    driver: local
-#  mysql_5_data:
-#    driver: local
   mongodb_data:
     driver: local
   data01:
@@ -14,7 +10,7 @@ volumes:
 
 networks:
   winra-external:
-    external: true
+    driver: bridge
 
 services:
   nginx: 
@@ -73,7 +69,6 @@ services:
       - winra-external
       
   win-ra-keycloak:
-    #image: jboss/keycloak:13.0.0
     build: data/keycloak/
     hostname: win-ra-keycloak
     container_name: win-ra-keycloak
@@ -113,11 +108,14 @@ services:
           - win-ra-keycloak 
       
   win-ra-api:
-    image: registry.gitlab.winllc-dev.com/root/pki-registration-authority
+    build: ./pki-ra-api-server
+    #image: registry.gitlab.winllc-dev.com/root/pki-registration-authority
     pull_policy: always
     container_name: win-ra-api
     hostname: winraapi
     restart: unless-stopped
+    environment:
+      - SERVER_FQDN=${SERVER_FQDN}
     ports:
       - 8282:8282
     depends_on:
@@ -140,10 +138,13 @@ services:
       - winra-external
     
   win-ra-acme:
-    image: registry.gitlab.winllc-dev.com/root/acme-server
+    build: ./pki-ra-acme-server
+    #image: registry.gitlab.winllc-dev.com/root/acme-server
     pull_policy: always
     container_name: win-ra-acme
     restart: unless-stopped
+    environment:
+      - SERVER_FQDN=${SERVER_FQDN}
     ports:
       - 8181:8181
     volumes:
@@ -177,13 +178,13 @@ services:
     hostname: win-ra-ui
     restart: unless-stopped
     environment:
-      PUBLIC_URL: https://winra.winllc-dev.com/ui
+      PUBLIC_URL: https://${SERVER_FQDN}/ui
       REACT_APP_KEYCLOAK_realm: dev
-      REACT_APP_KEYCLOAK_auth_server_url: https://winra.winllc-dev.com/auth/
+      REACT_APP_KEYCLOAK_auth_server_url: https://${SERVER_FQDN}/auth/
       REACT_APP_KEYCLOAK_RESOURCE: pki-ra-client-public
       REACT_APP_URL_BASENAME: /ui
-      REACT_APP_SYSTEM_STATUS_URL: https://winra.winllc-dev.com/status/targets
-      REACT_APP_IDENTITY_MANAGE_URL: https://winra.winllc-dev.com/auth/
+      REACT_APP_SYSTEM_STATUS_URL: https://${SERVER_FQDN}/status/targets
+      REACT_APP_IDENTITY_MANAGE_URL: https://${SERVER_FQDN}/auth/
     ports:
     #  - 8484:4000
       - 8484:80
@@ -210,7 +211,7 @@ services:
     #  - --storage.tsdb.path=/prometheus
     #  - --web.console.libraries=/usr/share/prometheus/console_libraries
     #  - --web.console.templates=/usr/share/prometheus/consoles
-      - --web.external-url=https://winra.winllc-dev.com/status
+      - --web.external-url=https://${SERVER_FQDN}/status
     #  - --web.route-prefix=/
 
   elasticsearch:

@@ -1,0 +1,12 @@
+[submodule "pki-ra-common"]
+	path = pki-ra-common
+	url = https://github.com/win-llc/pki-ra-common.git
+[submodule "pki-ra-acme-server"]
+	path = pki-ra-acme-server
+	url = https://github.com/win-llc/pki-ra-acme-server.git
+[submodule "pki-ra-est-server"]
+	path = pki-ra-est-server
+	url = https://github.com/win-llc/pki-ra-est-server.git
+[submodule "pki-ra-api-server"]
+	path = pki-ra-api-server
+	url = https://github.com/win-llc/pki-ra-api-server.git

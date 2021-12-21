@@ -15,9 +15,9 @@ app-keystore:
   type: PKCS12
 win-ra:
   acme-server-url: http://win-ra-acme:8181
-  acme-server-public-url: https://winra.winllc-dev.com
+  acme-server-public-url: https://${SERVER_FQDN}
   acme-server-name: winllc
-  est-server-url: https://winra.winllc-dev.com:8383
+  est-server-url: https://${SERVER_FQDN}:8383
 management:
   health:
     ldap:
@@ -48,7 +48,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://winra.winllc-dev.com/auth/realms/dev
+          issuer-uri: https://${SERVER_FQDN}/auth/realms/dev
 rest:
   security:
     cors:
@@ -72,9 +72,9 @@ server:
   #servlet:
   #  context-path: /
   #address: 192.168.1.13
-  base-url: https://winra.winllc-dev.com/ui
+  base-url: https://${SERVER_FQDN}/ui
 keycloak-admin-interface:
-  server-base-url: 'https://winra.winllc-dev.com/auth'
+  server-base-url: 'https://${SERVER_FQDN}/auth'
   realm: dev
   client-id: win-pki-ra-client
   client-secret: 9bbacdcc-6bbc-4c23-8a7a-77864a23a586
