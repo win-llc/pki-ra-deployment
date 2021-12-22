@@ -3,6 +3,8 @@ global:
   scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
   # scrape_timeout is set to the global default (10s).
+  external_labels:
+    fqdn: ${SERVER_FQDN} 
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -24,13 +26,13 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     scrape_interval: 15s
     static_configs:
-    - targets: ['192.168.1.170:8282']
+    - targets: ['$fqdn:8282']
 
   - job_name: 'win-ra-acme'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 15s
     static_configs:
-    - targets: ['192.168.1.170:8181']
+    - targets: ['$fqdn:8181']
 
   - job_name: 'win-ra-est'
     metrics_path: '/actuator/prometheus'
@@ -39,4 +41,4 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     static_configs:
-    - targets: ['192.168.1.170:8383']
+    - targets: ['$fqdn:8383']

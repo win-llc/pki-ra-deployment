@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$SERVER_FQDN" ]; then
+  export SERVER_FQDN=$(hostname --fqdn)
+fi
+
 if [ -x "$(command -v docker)" ]; then
     FILES="./images/*"
     for f in $FILES

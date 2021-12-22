@@ -1,47 +1,6 @@
-#user       www www;  ## Default: nobody
-worker_processes  5;  ## Default: 1
-error_log  /var/log/error.log;
-#pid        /var/log/nginx.pid;
-worker_rlimit_nofile 8192;
-
-events {
-  worker_connections  4096;  ## Default: 1024
-}
-
-http {
-#  include    /etc/conf/mime.types;
-#  include    /etc/conf/proxy.conf;
-#  include    /etc/conf/fastcgi.conf;
-  index    index.html index.htm index.php;
-
-  default_type application/octet-stream;
-  log_format   main '$remote_addr - $remote_user [$time_local]  $status '
-    '"$request" $body_bytes_sent "$http_referer" '
-    '"$http_user_agent" "$http_x_forwarded_for"';
-  access_log   /var/log/access.log  main;
-  sendfile     on;
-  tcp_nopush   on;
-  server_names_hash_bucket_size 128; # this seems to be required for some vhosts
-
-  upstream acme {
-    server win-ra-acme:8181;
-  }
-
-  upstream api {
-    server win-ra-api:8282;
-  }
-
-  upstream winrakeycloak {
-    server win-ra-keycloak:8080;
-  }
-
-#  upstream ui {
-#    server win-ra-ui:8484;
-#  }
-
   server { # 
     listen       443 ssl;
-    server_name  ansible.winllc-dev.com;
+    server_name  ${SERVER_FQDN};
     access_log   /var/log/winllc-dev.access.log  main;
 
     resolver 127.0.0.11;
@@ -65,7 +24,7 @@ http {
 
     # pass requests for dynamic content to rails/turbogears/zope, et al
     location /auth {
-      proxy_pass      http://winrakeycloak;
+      proxy_pass      http://win-ra-keycloak:8080;
       proxy_redirect  off;
 
       proxy_set_header X-Forwarded-For $remote_addr;
@@ -85,7 +44,7 @@ http {
     }
 
     location /api/ {
-      proxy_pass      http://api/;
+      proxy_pass      http://win-ra-api:8282/;
       proxy_set_header X-Forwarded-Host $server_name;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $remote_addr;
@@ -130,5 +89,3 @@ http {
     }
 
  }
-
-}

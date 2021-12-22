@@ -19,8 +19,10 @@ services:
     container_name: nginx
     hostname: nginx
     restart: unless-stopped
+    environment:
+      - SERVER_FQDN=${SERVER_FQDN}
     volumes:
-      - ./data/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./data/nginx/winra.conf.template:/etc/nginx/templates/winra.conf.template
       - ./data/ssl/:/etc/ssl/
       - ./data/nginx/conf/:/etc/conf/
     ports:
@@ -155,46 +157,46 @@ services:
     networks:
       - winra-external
       
-  win-ra-est:
-    image: registry.gitlab.winllc-dev.com/root/winllc-jester
-    pull_policy: always
-    container_name: win-ra-est
-    restart: unless-stopped
-    ports:
-      - 8383:8888
-    volumes:
-      - ./data/ssl/:/ssl/
-      - ./data/est/application-dev.properties:/application-dev.properties
-    depends_on:
-      win-ra-api:
-        condition: service_healthy
-    networks:
-      - winra-external
+        #  win-ra-est:
+        #    build: pki-ra-est-server/jester-winllc-server/
+        #    container_name: win-ra-est
+        #    restart: unless-stopped
+        #    environment:
+        #      - SERVER_FQDN=${SERVER_FQDN}
+        #    ports:
+        #      - 8383:8888
+        #    volumes:
+        #      - ./data/ssl/:/ssl/
+        #      - ./data/est/application-dev.properties:/application-dev.properties
+        #    depends_on:
+        #      win-ra-api:
+        #        condition: service_healthy
+        #    networks:
+        #      - winra-external
       
-  win-ra-ui:
-    image: registry.gitlab.winllc-dev.com/root/pki-ra-ui-3
-    pull_policy: always
-    container_name: win-ra-ui
-    hostname: win-ra-ui
-    restart: unless-stopped
-    environment:
-      PUBLIC_URL: https://${SERVER_FQDN}/ui
-      REACT_APP_KEYCLOAK_realm: dev
-      REACT_APP_KEYCLOAK_auth_server_url: https://${SERVER_FQDN}/auth/
-      REACT_APP_KEYCLOAK_RESOURCE: pki-ra-client-public
-      REACT_APP_URL_BASENAME: /ui
-      REACT_APP_SYSTEM_STATUS_URL: https://${SERVER_FQDN}/status/targets
-      REACT_APP_IDENTITY_MANAGE_URL: https://${SERVER_FQDN}/auth/
-    ports:
-    #  - 8484:4000
-      - 8484:80
-    volumes:
-      - ./data/ui/env.development:/app/.env.development
-      - ./data/ui/env.development:/usr/share/nginx/html/.env
-    depends_on:
-      - win-ra-api
-    networks:
-      - winra-external
+        #  win-ra-ui:
+        #    image: registry.gitlab.winllc-dev.com/root/pki-ra-ui-3
+        #    pull_policy: always
+        #    container_name: win-ra-ui
+        #    hostname: win-ra-ui
+        #    restart: unless-stopped
+        #    environment:
+        #      PUBLIC_URL: https://${SERVER_FQDN}/ui
+        #      REACT_APP_KEYCLOAK_realm: dev
+        #      REACT_APP_KEYCLOAK_auth_server_url: https://${SERVER_FQDN}/auth/
+        #      REACT_APP_KEYCLOAK_RESOURCE: pki-ra-client-public
+        #      REACT_APP_URL_BASENAME: /ui
+        #      REACT_APP_SYSTEM_STATUS_URL: https://${SERVER_FQDN}/status/targets
+        #      REACT_APP_IDENTITY_MANAGE_URL: https://${SERVER_FQDN}/auth/
+        #    ports:
+        #      - 8484:80
+        #    volumes:
+        #      - ./data/ui/env.development:/app/.env.development
+        #      - ./data/ui/env.development:/usr/share/nginx/html/.env
+        #    depends_on:
+        #      - win-ra-api
+        #    networks:
+        #      - winra-external
 
   prometheus:
     image: prom/prometheus
@@ -206,8 +208,11 @@ services:
       - ./data/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - winra-external
+    environment:
+      - SERVER_FQDN=${SERVER_FQDN}
     command:
       - --config.file=/etc/prometheus/prometheus.yml
+      - --enable-feature=expand-external-labels
     #  - --storage.tsdb.path=/prometheus
     #  - --web.console.libraries=/usr/share/prometheus/console_libraries
     #  - --web.console.templates=/usr/share/prometheus/consoles
