@@ -1,0 +1,19 @@
+[{
+  "_id": {
+    "$oid": "5d73ac0d48f0630cfc712944"
+  },
+  "name": "acme",
+  "allowPreAuthorization": false,
+  "mapsToCertificateAuthorityName": "winllc",
+  "externalAccountProviderName": "winllc",
+  "termsOfServiceLastUpdatedOn": {
+    "$date": "2020-12-19T18:03:47.127Z"
+  },
+  "termsOfServiceHistory": [
+    "https://ansible.winllc-dev.com/tos/version/vzrYHpwornaS1E89lLsH/view"
+  ],
+  "metaTermsOfService": "https://ansible.winllc-dev.com/tos/version/vzrYHpwornaS1E89lLsH/view",
+  "metaWebsite": "test.com",
+  "metaExternalAccountRequired": true,
+  "_class": "com.winllc.acme.common.DirectoryDataSettings"
+}]

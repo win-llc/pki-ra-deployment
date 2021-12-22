@@ -142,7 +142,7 @@ services:
   win-ra-acme:
     build: ./pki-ra-acme-server
     #image: registry.gitlab.winllc-dev.com/root/acme-server
-    pull_policy: always
+    #pull_policy: always
     container_name: win-ra-acme
     restart: unless-stopped
     environment:

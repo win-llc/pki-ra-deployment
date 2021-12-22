@@ -21,6 +21,10 @@ if [ -x "$(command -v docker)" ]; then
 
     docker exec -it nginx nginx -s reload
 
+    echo "Init ACME Default Directory"
+    docker cp data/acme/default-directory.json mongodb:/tmp/default-directory.json
+    docker exec mongodb mongoimport -d acme -c directoryDataSettings --jsonArray --username appuser --password password --file /tmp/default-directory.json
+
 else
     echo "Install docker"
     # command
