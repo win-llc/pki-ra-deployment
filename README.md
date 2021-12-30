@@ -31,6 +31,7 @@ git submodule update --remote --merge
 ## Running
 NOTE: Be sure to append the additional '.' in order to properly set the environment variables.
 ```bash
+export SERVER_FQDN=<hostname.domain>
 . ./start-ra.sh
 ```
 
