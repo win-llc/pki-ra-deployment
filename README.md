@@ -12,6 +12,7 @@ The web admin UI Service and EST Service are currently not included in the deplo
 ### Prerequisites
 - docker
 - docker-compose
+- OpenJDK 11 JDK
 
 ### Install Submodules
 
