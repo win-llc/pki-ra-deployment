@@ -35,5 +35,11 @@ export SERVER_FQDN=<hostname.domain>
 . ./start-ra.sh
 ```
 
+## Verify
+In a browser navigate to:
+
+- API:  https://<hostname.domain>/api/actuator/health and verify the status is marked as UP
+- ACME: http://<hostname.domain>:8181/actuator/health
+
 ## License
 [GNU](https://github.com/win-llc/pki-ra-deployment/blob/master/LICENSE)
